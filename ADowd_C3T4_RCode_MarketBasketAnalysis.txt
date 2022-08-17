@@ -1,0 +1,294 @@
+library(arules)
+library(arulesViz)
+
+# Import data set
+trans <- read.transactions("ElectronidexTransactions2017.csv", format="basket", sep=",", rm.duplicates=TRUE)
+
+# Examine data set
+summary(trans)
+inspect(trans)
+inspect(head(trans, n=10))
+inspect(tail(trans, n=10))
+inspect(trans[1545:1590])
+length(trans)        
+size(trans[824:850])
+LIST(trans[450:500])
+itemLabels(trans)
+
+# Visualize data set
+itemFrequencyPlot(trans, type="absolute", support=100, horiz=TRUE, cex.names=.4)
+itemFrequencyPlot(trans, type="absolute", support=500, horiz=TRUE)
+itemFrequencyPlot(trans, type="absolute", topN=82, horiz=TRUE, cex.names=.4)
+itemFrequencyPlot(trans, type="relative", topN=20, horiz=TRUE)
+
+image(trans[1:100])
+image(sample(trans, 1000)) # Not very useful
+
+
+
+# Find rules
+# Confidence=0.9
+rules0109 <- apriori(trans, parameter=list(supp=0.1, conf=0.9))
+# 0 rules
+
+rules00109 <- apriori(trans, parameter=list(supp=0.01, conf=0.9))
+# 0 rules
+
+rules000509 <- apriori(trans, parameter=list(supp=0.005, conf=0.9))
+# 0 rules
+
+rules000109 <- apriori(trans, parameter=list(supp=0.001, conf=0.9))
+inspect(sort(rules000109, descending=TRUE, by="support")) # 197 rules, but low support (high count=37)
+
+# Confidence=0.8
+rules0108 <- apriori(trans, parameter=list(supp=0.1, conf=0.8))
+# 0 rules
+
+rules00108 <- apriori(trans, parameter=list(supp=0.01, conf=0.8))
+# 0 rules
+
+rules000508 <- apriori(trans, parameter=list(supp=0.005, conf=0.8))
+inspect(sort(rules000508, descending=TRUE, by="support")) # 1 rule
+
+rules000308 <- apriori(trans, parameter=list(supp=0.003, conf=0.8))
+inspect(sort(rules000308, descending=TRUE, by="support")) # 3 rules
+
+rules000208 <- apriori(trans, parameter=list(supp=0.002, conf=0.8))
+inspect(sort(rules000208, descending=TRUE, by="support")) # 28 rules, but low support (high count=52)
+
+# Confidence=0.7
+rules0107 <- apriori(trans, parameter=list(supp=0.1, conf=0.7))
+# 0 rules
+
+rules00107 <- apriori(trans, parameter=list(supp=0.01, conf=0.7))
+# 0 rules
+
+rules000507 <- apriori(trans, parameter=list(supp=0.005, conf=0.7))
+inspect(sort(rules000507, descending=TRUE, by="support")) # 3 rules
+
+# Confidence=0.6
+rules0106 <- apriori(trans, parameter=list(supp=0.1, conf=0.6))
+# 0 rules
+
+rules00106 <- apriori(trans, parameter=list(supp=0.01, conf=0.6))
+inspect(sort(rules00106, descending=TRUE, by="support")) # 1 rule, potentially useful
+
+rules000506 <- apriori(trans, parameter=list(supp=0.005, conf=0.6))
+inspect(sort(rules000506, descending=TRUE, by="support")) # 28 rules
+
+# Confidence=0.5
+rules0105 <- apriori(trans, parameter=list(supp=0.1, conf=0.5))
+# 0 rules
+
+rules00505 <- apriori(trans, parameter=list(supp=0.05, conf=0.5))
+# 0 rules
+
+rules00105 <- apriori(trans, parameter=list(supp=0.01, conf=0.5))
+inspect(sort(rules00105, descending=TRUE, by="support")) # 19 rules, potentially useful
+
+rules000505 <- apriori(trans, parameter=list(supp=0.005, conf=0.5))
+inspect(sort(rules000505, descending=TRUE, by="support")) # 151 rules
+
+# Confidence=0.4
+rules0104 <- apriori(trans, parameter=list(supp=0.1, conf=0.4))
+# 0 rules
+
+rules00504 <- apriori(trans, parameter=list(supp=0.05, conf=0.4))
+inspect(sort(rules00504, descending=TRUE, by="support")) # 1 rule, useful (count=537)
+
+rules00104 <- apriori(trans, parameter=list(supp=0.01, conf=0.4))
+inspect(sort(rules00104, descending=TRUE, by="support")) # 70 rules, 67 potentially useful (five with count>300)
+
+# Confidence=0.33
+rules01033 <- apriori(trans, parameter=list(supp=0.1, conf=0.33))
+# 0 rules
+
+rules005033 <- apriori(trans, parameter=list(supp=0.05, conf=0.33))
+inspect(sort(rules005033, descending=TRUE, by="support")) # 3 rules, useful
+
+rules001033 <- apriori(trans, parameter=list(supp=0.01, conf=0.33))
+inspect(sort(rules001033, descending=TRUE, by="support")) # 125 rules, 121 potentially useful (11 with count>300)
+
+# Confidence=0.25
+rules01025 <- apriori(trans, parameter=list(supp=0.1, conf=0.25))
+inspect(sort(rules01025, descending=TRUE, by="support")) # 1 rule but LHS=NULL
+
+rules005025 <- apriori(trans, parameter=list(supp=0.05, conf=0.25))
+inspect(sort(rules005025, descending=TRUE, by="support")) # 6 rules, 5 useful
+
+rules001025 <- apriori(trans, parameter=list(supp=0.01, conf=0.25))
+inspect(sort(rules001025, descending=TRUE, by="support")) # 204 rules
+
+
+
+# Adjust minlen/maxlen
+rules00102522 <- apriori(trans, parameter=list(supp=0.01, conf=0.25, minlen=2, maxlen=2))
+inspect(sort(rules00102522, descending=TRUE, by="support")) # 102 rules
+
+rules00102533 <- apriori(trans, parameter=list(supp=0.01, conf=0.25, minlen=3, maxlen=3))
+inspect(sort(rules00102533, descending=TRUE, by="support")) # 101 rules
+
+rules0010254plus <- apriori(trans, parameter=list(supp=0.01, conf=0.25, minlen=4))
+# 0 rules
+# All worthwhile rules are either {b} => {a} or {b,c} => {a}
+
+
+
+# Finalize rules pool
+bestRules <- apriori(trans, parameter=list(supp=0.01, conf=0.25, minlen=2, maxlen=3))
+is.redundant(bestRules)
+rulesPool <- bestRules[!is.redundant(bestRules, measure="lift")]
+is.redundant(rulesPool)
+
+rulesPool <- sort(rulesPool, descending=TRUE, by="support")
+ruleSet <- inspect(rulesPool)
+
+write.csv(ruleSet, file="RulesPool.csv", row.names = TRUE)
+
+# Visualize the final rule set
+plot(rulesPool, method="scatterplot", measure=c("support", "confidence"), shading="lift")
+# Hard to discern any patterns from this plot.
+
+plot(rulesPool, method="scatterplot", measure=c("support", "coverage"), shading="confidence")
+# Illustrates linear relationship between support and coverage and that confidence is stronger in less supported rules
+
+plot(rulesPool, method="scatterplot", measure=c("support", "coverage"), shading="lift")
+
+plot(rulesPool, method="scatterplot", measure=c("support", "lift"), shading="confidence")
+# Lift appears to demonstrate an inverse correlation to support
+
+plot(rulesPool, method="scatterplot", measure=c("lift", "confidence"), shading="support")
+# This creates an interesting plot but I'm unsure what to glean from it.
+
+plot(rulesPool, method="scatterplot", measure=c("support", "confidence"), shading="coverage")
+
+# plot(rulesPool[1:50], method="graph", control=list(type="items"))
+# plot(rulesPool[1:201], method="graph", control=list(type="items"))
+# plot(rulesPool[1:20], method="graph", measure="confidence", control=list(type="items"))
+
+# Sort rules by metrics
+# bestBySupp <- inspect(sort(rulesPool, descending=TRUE, by="support"))
+# bestByConf <- inspect(sort(rulesPool, descending=TRUE, by="confidence"))
+# bestByLift <- inspect(sort(rulesPool, descending=TRUE, by="lift"))
+
+# Get top 20 rules be each metric -- support, confidence, and lift
+bestSupp <- head(rulesPool, n=20, by="support")
+bestConf <- head(rulesPool, n=20, by="confidence")
+bestLift <- head(rulesPool, n=20, by="lift")
+
+# Visualize rules
+plot(bestSupp, method="graph", engine="htmlwidget")
+plot(bestConf, method="graph", engine="htmlwidget")
+plot(bestLift, method="graph", engine="htmlwidget")
+
+# plot(bestSupp, method="paracoord")
+# plot(bestConf, method="paracoord")
+# plot(bestLift, method="paracoord")
+# Could not get any output from these. Unsure why.
+
+#Print top 20 rules by support
+top20Supp <- inspect(sort(bestSupp, descending=TRUE, by="support"))
+top20Supp
+summary(top20Supp)
+plot(top20Supp)
+
+# Print top 20 rules by confidence
+top20Conf <- inspect(sort(bestConf, descending=TRUE, by="confidence"))
+top20Conf
+summary(top20Conf)
+plot(top20Conf)
+
+#Print top 20 rules by lift
+top20Lift <- inspect(sort(bestLift, descending=TRUE, by="lift"))
+top20Lift
+summary(top20Lift)
+plot(top20Lift)
+
+# Write top 20 lists to csv files
+# write.csv(top20Supp, file="Top20RulesbySupport.csv", row.names = TRUE)
+# write.csv(top20Conf, file="Top20RulesbyConfidence.csv", row.names = TRUE)
+# write.csv(top20Lift, file="Top20RulesbyLift.csv", row.names = TRUE)
+
+
+
+# View all rules containing iMac
+iMacRules <- subset(rulesPool, items %in% "iMac")
+summary(iMacRules) # More than half of the rules from rulesPool contain iMac. Let's see if we can find
+# some interesting rules for the less frequently purchased items.
+
+# Find all rules that exclude iMac
+noiMac <- apriori(trans, parameter=list(supp=0.01, conf=0.25, minlen=2), appearance=list(none="iMac"))
+itemFrequency(items(noiMac))["iMac"]  # Confirms that iMac is not found in any of these rules
+summary(noiMac)
+
+# View best rules by metric
+noiMacBestSupp <- inspect(sort(noiMac, descending=TRUE, by="support"))
+noiMacBestConf <- inspect(sort(noiMac, descending=TRUE, by="confidence"))
+noiMacBestLift <- inspect(sort(noiMac, descending=TRUE, by="lift"))
+# HP Laptop seems to have an imbalanced presence.
+
+# write.csv(noiMacBestSupp, file="NoiMacBestRulesbySupport.csv", row.names = TRUE)
+# write.csv(noiMacBestConf, file="NoiMacBestRulesbyConfidence.csv", row.names = TRUE)
+# write.csv(noiMacBestLift, file="NoiMacBestRulesbyLift.csv", row.names = TRUE)
+
+# Visualize rules
+plot(noiMac, method="graph", engine="htmlwidget")
+
+
+# View all rules containing HP Laptop
+HPLapRules <- subset(noiMac, items %in% "HP Laptop")
+summary(HPLapRules) # About 2/3 of the remaining rules contain HP Laptop. Let's see what remains when it
+# is removed from the possible itemsets.
+
+# Find all rules that exclude iMac and HP Laptop
+noHPLap <- apriori(trans, parameter=list(supp=0.01, conf=0.25, minlen=2), appearance=list(none=c("iMac", "HP Laptop")))
+itemFrequency(items(noHPLap))["HP Laptop"]
+itemFrequency(items(noHPLap))["iMac"]   # Confirms neither iMac nor HP Laptop are found in these rules
+summary(noHPLap)
+
+# View best rules by metric
+noHPBestSupp <- inspect(sort(noHPLap, descending=TRUE, by="support"))
+noHPBestConf <- inspect(sort(noHPLap, descending=TRUE, by="confidence"))
+noHPBestLift <- inspect(sort(noHPLap, descending=TRUE, by="lift"))
+
+# write.csv(noHPBestSupp, file="NoHPBestRulesbySupport.csv", row.names = TRUE)
+# write.csv(noHPBestConf, file="NoHPBestRulesbyConfidence.csv", row.names = TRUE)
+# write.csv(noHPBestLift, file="NoHPBestRulesbyLift.csv", row.names = TRUE)
+
+# Visualize rules
+plot(noHPLap, method="graph", engine="htmlwidget")
+
+# Import formatted csv with selected rules
+# rules <- read.csv("FinalRules.csv")
+
+# Create final rule set
+r1 <- rulesPool[1]
+r2 <- rulesPool[3:10]
+r3 <- rulesPool[14]
+r4 <- rulesPool[16:17]
+r5 <- rulesPool[20:23]
+r6 <- rulesPool[26]
+r7 <- rulesPool[34]
+r8 <- rulesPool[38]
+r9 <- rulesPool[48]
+r10 <- rulesPool[55]
+r11 <- rulesPool[74]
+r12 <- rulesPool[90]
+r13 <- rulesPool[105]
+r14 <- rulesPool[118]
+r15 <- rulesPool[131]
+r16 <- rulesPool[162]
+r17 <- rulesPool[169]
+r18 <- rulesPool[190]
+r19 <- rulesPool[192]
+finalRules <- c(r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11, r12, r13, r14, r15, r16, r17, r18, r19)
+inspect(finalRules)
+
+# Visualize final rule set
+plot(finalRules, method="graph", engine="htmlwidget")
+plot(finalRules, method="paracoord")
+plot(finalRules, method = "graph", engine = "htmlwidget", 
+     igraphLayout = "layout_in_circle", limit = 30)
+plot(finalRules, method = "graph", asEdges = TRUE, limit = 30)
+plot(finalRules, method = "graph", asEdges = TRUE, circular = FALSE, limit = 30)
+plot(finalRules, measure = c("support", "lift"), shading = "confidence")
